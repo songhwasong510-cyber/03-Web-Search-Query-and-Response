@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import ChatBubble from "@/components/ChatBubble";
 import ChatResponse from "@/components/ChatResponse";
@@ -6,7 +6,21 @@ import ChatInput from "@/components/ChatInput";
 import { Settings, ChevronDown, Menu } from "lucide-react";
 
 export default function Index() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const webLinks = [
     {
