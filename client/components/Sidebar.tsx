@@ -33,9 +33,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
   ];
 
   return (
-    <aside
-      className="w-[234px] flex-shrink-0 bg-agentgo-neutral-050 flex flex-col h-screen overflow-hidden"
-    >
+    <aside className="w-[234px] flex-shrink-0 bg-agentgo-neutral-050 flex flex-col h-screen overflow-hidden">
       <div className="flex items-center justify-between h-[52px] px-[18px]">
         <div className="flex items-center gap-2">
           <svg
@@ -80,7 +78,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
               "flex items-center gap-1.5 h-[42px] px-2.5 rounded transition-all text-left",
               item.active
                 ? "bg-white shadow-sm font-bold"
-                : "font-bold hover:bg-white/50"
+                : "font-bold hover:bg-white/50",
             )}
           >
             <div className="relative">
@@ -89,7 +87,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
                   "w-[18px] h-[18px]",
                   item.active
                     ? "text-agentgo-primary"
-                    : "text-agentgo-text-tertiary"
+                    : "text-agentgo-text-tertiary",
                 )}
               />
               {item.sparkle && (
@@ -101,7 +99,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
                 "text-sm leading-[142%]",
                 item.active
                   ? "text-agentgo-primary"
-                  : "text-agentgo-text-secondary"
+                  : "text-agentgo-text-secondary",
               )}
             >
               {item.label}

@@ -27,7 +27,7 @@ export default function ChatResponse({
     <div
       className={cn(
         "flex flex-col items-start gap-4 max-w-[814px] w-full",
-        className
+        className,
       )}
     >
       {intro && (

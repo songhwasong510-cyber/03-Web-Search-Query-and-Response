@@ -28,7 +28,7 @@ export default function ChatInput({ onSend, className }: ChatInputProps) {
     <div
       className={cn(
         "w-full max-w-[768px] p-2.5 flex flex-col gap-6 bg-white rounded-lg border border-[#155DFC] shadow-[0_2px_8px_-2px_rgba(50,56,62,0.08),0_20px_24px_-4px_rgba(50,56,62,0.08)]",
-        className
+        className,
       )}
     >
       <textarea
@@ -52,7 +52,7 @@ export default function ChatInput({ onSend, className }: ChatInputProps) {
             "flex items-center justify-center w-8 h-8 rounded transition-colors",
             message.trim()
               ? "bg-agentgo-neutral-disabled hover:bg-agentgo-neutral-color"
-              : "bg-agentgo-neutral-disabled cursor-not-allowed"
+              : "bg-agentgo-neutral-disabled cursor-not-allowed",
           )}
         >
           <ArrowUp className="w-[18px] h-[18px] text-white" />
