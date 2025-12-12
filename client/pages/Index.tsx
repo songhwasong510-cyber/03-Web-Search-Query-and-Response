@@ -40,18 +40,31 @@ export default function Index() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <div
+        className={`fixed lg:relative z-50 lg:z-0 h-full transition-transform duration-300 lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <Sidebar isOpen={true} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+      </div>
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="flex items-center justify-between h-[52px] px-6 lg:px-8 border-b border-transparent">
+        <header className="flex items-center justify-between h-[52px] px-4 lg:px-8 border-b border-transparent">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden p-2 rounded hover:bg-agentgo-neutral-050"
+            className="lg:hidden p-2 -ml-2 rounded hover:bg-agentgo-neutral-050"
           >
             <Menu className="w-5 h-5" />
           </button>
-          
-          <div className="flex-1" />
+
+          <div className="flex-1 lg:flex-none" />
 
           <button className="flex items-center gap-1.5 h-8 px-3 bg-agentgo-neutral-soft rounded hover:bg-agentgo-neutral-border transition-colors">
             <Settings className="w-[18px] h-[18px] text-agentgo-neutral-color" />

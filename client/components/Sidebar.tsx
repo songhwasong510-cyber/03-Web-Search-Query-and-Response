@@ -14,11 +14,10 @@ import {
 } from "lucide-react";
 
 interface SidebarProps {
-  isOpen?: boolean;
   onToggle?: () => void;
 }
 
-export default function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
+export default function Sidebar({ onToggle }: SidebarProps) {
   const menuItems = [
     {
       icon: MessageSquare,
@@ -35,11 +34,7 @@ export default function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
 
   return (
     <aside
-      className={cn(
-        "flex-shrink-0 bg-agentgo-neutral-050 transition-all duration-300 flex flex-col",
-        isOpen ? "w-[234px]" : "w-0 lg:w-[234px]",
-        "h-screen overflow-hidden"
-      )}
+      className="w-[234px] flex-shrink-0 bg-agentgo-neutral-050 flex flex-col h-screen overflow-hidden"
     >
       <div className="flex items-center justify-between h-[52px] px-[18px]">
         <div className="flex items-center gap-2">
