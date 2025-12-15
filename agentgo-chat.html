@@ -1,1260 +1,988 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgentGo - 채팅 인터페이스</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Pretendard+Variable:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard+Variable:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --agentgo-primary: hsl(219, 87%, 49%);
-        --agentgo-primary-active: hsl(213, 100%, 93%);
-        --agentgo-primary-soft: hsl(213, 100%, 93%);
-        --agentgo-primary-soft-fg: hsl(222, 62%, 40%);
-        --agentgo-neutral-900: hsl(222, 94%, 6%);
-        --agentgo-neutral-050: hsl(210, 40%, 96%);
-        --agentgo-neutral-soft: hsl(214, 32%, 88%);
-        --agentgo-neutral-border: hsl(213, 25%, 85%);
-        --agentgo-neutral-color: hsl(217, 35%, 18%);
-        --agentgo-text-primary: hsl(222, 61%, 11%);
-        --agentgo-text-secondary: hsl(216, 33%, 21%);
-        --agentgo-text-tertiary: hsl(214, 22%, 36%);
-        --agentgo-neutral-disabled: hsl(213, 21%, 63%);
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        height: 100%;
-        width: 100%;
-      }
-
-      body {
-        font-family:
-          "Pretendard Variable",
-          -apple-system,
-          Roboto,
-          Helvetica,
-          sans-serif;
-        background-color: white;
-        color: var(--agentgo-text-primary);
-        font-size: 16px;
-        font-weight: 400;
-      }
-
-      .container {
-        display: flex;
-        height: 100vh;
-        overflow: hidden;
-      }
-
-      /* ========== SIDEBAR ========== */
-      .sidebar {
-        width: 234px;
-        background-color: var(--agentgo-neutral-050);
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        border-right: 1px solid var(--agentgo-neutral-border);
-      }
-
-      .sidebar-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 52px;
-        padding: 0 18px;
-        gap: 149px;
-      }
-
-      .sidebar-logo {
-        width: 23px;
-        height: 20px;
-      }
-
-      .sidebar-toggle {
-        display: none;
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        border-radius: 4px;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .sidebar-toggle:hover {
-        background-color: var(--agentgo-neutral-soft);
-      }
-
-      .sidebar-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 0 12px;
-        margin-top: 10px;
-      }
-
-      .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        height: 42px;
-        padding: 10px;
-        border-radius: 4px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1.42;
-        color: var(--agentgo-text-secondary);
-        transition: background-color 0.2s;
-        position: relative;
-        text-align: left;
-      }
-
-      .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.5);
-      }
-
-      .nav-item.active {
-        background-color: white;
-        color: var(--agentgo-primary);
-        box-shadow:
-          0 1px 2px 0 rgba(50, 56, 62, 0.08),
-          0 2px 4px 0 rgba(50, 56, 62, 0.08);
-      }
-
-      .nav-item.active::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 10px;
-        width: 2px;
-        height: 22px;
-        background-color: var(--agentgo-primary);
-        border-radius: 0 2px 2px 0;
-      }
-
-      .nav-icon {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-        position: relative;
-      }
-
-      .nav-item.active .nav-icon {
-        color: var(--agentgo-primary);
-      }
-
-      .nav-item:not(.active) .nav-icon {
-        color: var(--agentgo-text-tertiary);
-      }
-
-      .nav-label {
-        flex: 1;
-        font-size: 14px;
-        line-height: 1.42;
-      }
-
-      .sidebar-bottom {
-        margin-top: auto;
-        padding: 0 12px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .guide-button {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        height: 42px;
-        padding: 10px;
-        border-radius: 4px;
-        border: 1px solid var(--agentgo-neutral-border);
-        background: transparent;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--agentgo-text-secondary);
-        transition: background-color 0.2s;
-      }
-
-      .guide-button:hover {
-        background-color: rgba(255, 255, 255, 0.5);
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-
-      .user-info:hover {
-        background-color: rgba(255, 255, 255, 0.5);
-      }
-
-      .user-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: white;
-        border: 1px solid var(--agentgo-neutral-border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .user-details {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .user-name {
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1.4;
-        color: var(--agentgo-text-secondary);
-      }
-
-      .user-email {
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--agentgo-text-tertiary);
-      }
-
-      /* ========== MAIN CONTENT ========== */
-      .main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        position: relative;
-      }
-
-      .header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 52px;
-        padding: 0 32px;
-        border-bottom: 1px solid transparent;
-      }
-
-      .menu-button {
-        display: none;
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-      }
-
-      .menu-button:hover {
-        background-color: var(--agentgo-neutral-soft);
-      }
-
-      .menu-icon {
-        width: 18px;
-        height: 18px;
-      }
-
-      .header-spacer {
-        flex: 1;
-      }
-
-      .agent-status {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        height: 32px;
-        padding: 2px 12px;
-        background-color: var(--agentgo-neutral-soft);
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1.42;
-        color: var(--agentgo-neutral-color);
-      }
-
-      .agent-status-count {
-        color: var(--agentgo-primary);
-      }
-
-      .agent-status-icon,
-      .agent-status-dropdown {
-        width: 18px;
-        height: 18px;
-      }
-
-      /* ========== CHAT AREA ========== */
-      .chat-area {
-        flex: 1;
-        overflow-y: auto;
-        padding: 24px 32px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .chat-wrapper {
-        max-width: 1206px;
-        margin: 0 auto;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 16px;
-      }
-
-      /* User Message Bubble */
-      .chat-bubble {
-        display: inline-flex;
-        padding: 14px 20px;
-        background-color: var(--agentgo-primary-soft);
-        border-radius: 26px 2px 26px 26px;
-        max-width: 80%;
-        box-shadow: 0 1px 2px 0 rgba(50, 56, 62, 0.08);
-      }
-
-      .chat-bubble-text {
-        font-size: 16px;
-        line-height: 1.5;
-        color: var(--agentgo-neutral-900);
-      }
-
-      /* AI Response */
-      .chat-response {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        width: 100%;
-        max-width: 814px;
-        align-items: flex-start;
-      }
-
-      .response-intro {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        width: 100%;
-      }
-
-      .response-intro-header {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-
-      .response-logo {
-        width: 28px;
-        height: 24px;
-        flex-shrink: 0;
-      }
-
-      .response-intro-text {
-        font-size: 16px;
-        line-height: 1.5;
-        color: var(--agentgo-neutral-900);
-        flex: 1;
-      }
-
-      .response-divider {
-        width: 100%;
-        height: 1px;
-        background: transparent;
-        position: relative;
-      }
-
-      .response-divider::after {
-        content: "";
-        position: absolute;
-        left: 46px;
-        top: 0;
-        width: calc(100% - 46px);
-        height: 1px;
-        background-color: var(--agentgo-neutral-border);
-      }
-
-      .response-content {
-        width: 100%;
-        max-width: 768px;
-        font-size: 16px;
-        line-height: 2;
-        color: var(--agentgo-neutral-900);
-        white-space: pre-wrap;
-        word-wrap: break-word;
-      }
-
-      .response-content strong {
-        font-weight: 700;
-        display: block;
-        margin-top: 16px;
-        margin-bottom: 4px;
-      }
-
-      .response-content strong:first-child {
-        margin-top: 0;
-      }
-
-      /* Web Links Section */
-      .response-links {
-        width: 100%;
-        max-width: 768px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .links-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 31px;
-      }
-
-      .links-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 20px;
-        font-weight: 700;
-        line-height: 1.55;
-        color: black;
-      }
-
-      .links-emoji {
-        font-size: 24px;
-      }
-
-      .collapse-button {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        height: 32px;
-        padding: 2px 12px;
-        border: 1px solid var(--agentgo-neutral-border);
-        background: transparent;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1.42;
-        color: var(--agentgo-neutral-color);
-        transition: background-color 0.2s;
-      }
-
-      .collapse-button:hover {
-        background-color: var(--agentgo-neutral-050);
-      }
-
-      .collapse-icon {
-        width: 18px;
-        height: 18px;
-      }
-
-      .links-container {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .link-card {
-        display: flex;
-        align-items: center;
-        height: 62px;
-        padding: 14px;
-        border: 1px solid var(--agentgo-neutral-border);
-        border-radius: 6px;
-        background: white;
-        box-shadow: 0 1px 2px 0 rgba(50, 56, 62, 0.08);
-        cursor: pointer;
-        transition: box-shadow 0.2s;
-      }
-
-      .link-card:hover {
-        box-shadow: 0 1px 4px 0 rgba(50, 56, 62, 0.12);
-      }
-
-      .link-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 23px;
-        height: 20px;
-        padding: 0 7px;
-        background-color: var(--agentgo-primary-soft);
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1.42;
-        color: var(--agentgo-primary-soft-fg);
-        flex-shrink: 0;
-        margin-right: 10px;
-      }
-
-      .link-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
-      }
-
-      .link-title {
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.42;
-        color: var(--agentgo-text-primary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .link-description {
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.5;
-        color: var(--agentgo-text-tertiary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .link-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 4px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: background-color 0.2s;
-      }
-
-      .link-button:hover {
-        background-color: var(--agentgo-neutral-050);
-      }
-
-      .link-icon {
-        width: 18px;
-        height: 18px;
-        color: var(--agentgo-text-tertiary);
-      }
-
-      /* ========== CHAT INPUT ========== */
-      .chat-input-area {
-        display: flex;
-        justify-content: center;
-        padding: 16px 32px 24px;
-      }
-
-      .chat-input {
-        width: 100%;
-        max-width: 768px;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        background: white;
-        border: 1px solid #155dfc;
-        border-radius: 8px;
-        box-shadow:
-          0 2px 8px -2px rgba(50, 56, 62, 0.08),
-          0 20px 24px -4px rgba(50, 56, 62, 0.08);
-      }
-
-      .chat-input textarea {
-        width: 100%;
-        font-size: 16px;
-        color: var(--agentgo-neutral-900);
-        font-family:
-          "Pretendard Variable",
-          -apple-system,
-          Roboto,
-          Helvetica,
-          sans-serif;
-        line-height: 1.5;
-        resize: none;
-        border: none;
-        outline: none;
-        background: transparent;
-        min-height: 24px;
-      }
-
-      .chat-input textarea::placeholder {
-        color: var(--agentgo-neutral-disabled);
-      }
-
-      .chat-input-controls {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .input-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 4px;
-        border: 1px solid var(--agentgo-neutral-border);
-        background: transparent;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-
-      .input-button:hover {
-        background-color: var(--agentgo-neutral-050);
-      }
-
-      .input-button.send {
-        border: none;
-        background-color: var(--agentgo-neutral-disabled);
-        color: white;
-      }
-
-      .input-button.send:hover:not(:disabled) {
-        background-color: var(--agentgo-neutral-color);
-      }
-
-      .input-button.send:disabled {
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-
-      .input-icon {
-        width: 18px;
-        height: 18px;
-      }
-
-      /* ========== BACKGROUND EFFECTS ========== */
-      .background-effects {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 250px;
-        pointer-events: none;
-        overflow: hidden;
-        z-index: 0;
-      }
-
-      .blur-circle-1 {
-        position: absolute;
-        bottom: 0;
-        right: 200px;
-        width: 618px;
-        height: 250px;
-        background: #7797ff;
-        border-radius: 50%;
-        opacity: 0.24;
-        filter: blur(150px);
-      }
-
-      .blur-circle-2 {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 794px;
-        height: 250px;
-        background: #70cfff;
-        border-radius: 50%;
-        opacity: 0.14;
-        filter: blur(150px);
-      }
-
-      /* ========== MOBILE RESPONSIVE ========== */
-      @media (max-width: 1023px) {
+        :root {
+            --agentgo-primary: hsl(219, 87%, 49%);
+            --agentgo-primary-active: hsl(213, 100%, 93%);
+            --agentgo-primary-soft: hsl(213, 100%, 93%);
+            --agentgo-primary-soft-fg: hsl(222, 62%, 40%);
+            --agentgo-neutral-900: hsl(222, 94%, 6%);
+            --agentgo-neutral-050: hsl(210, 40%, 96%);
+            --agentgo-neutral-soft: hsl(214, 32%, 88%);
+            --agentgo-neutral-border: hsl(213, 25%, 85%);
+            --agentgo-neutral-color: hsl(217, 35%, 18%);
+            --agentgo-text-primary: hsl(222, 61%, 11%);
+            --agentgo-text-secondary: hsl(216, 33%, 21%);
+            --agentgo-text-tertiary: hsl(214, 22%, 36%);
+            --agentgo-neutral-disabled: hsl(213, 21%, 63%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Pretendard Variable', -apple-system, Roboto, Helvetica, sans-serif;
+            background-color: white;
+            color: var(--agentgo-text-primary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========== SIDEBAR ========== */
         .sidebar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          height: 100vh;
-          z-index: 50;
-          transform: translateX(-100%);
-          transition: transform 0.3s ease;
+            width: 234px;
+            background-color: var(--agentgo-neutral-050);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-right: 1px solid var(--agentgo-neutral-border);
         }
 
-        .sidebar.open {
-          transform: translateX(0);
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 52px;
+            padding: 0 18px;
+            gap: 149px;
         }
 
-        .sidebar-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.2);
-          z-index: 40;
-          display: none;
+        .sidebar-logo {
+            width: 23px;
+            height: 20px;
         }
 
-        .sidebar-overlay.show {
-          display: block;
+        .sidebar-toggle {
+            display: none;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            align-items: center;
+            justify-content: center;
         }
 
-        .menu-button {
-          display: flex;
+        .sidebar-toggle:hover {
+            background-color: var(--agentgo-neutral-soft);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0 12px;
+            margin-top: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 42px;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.42;
+            color: var(--agentgo-text-secondary);
+            transition: background-color 0.2s;
+            position: relative;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-item.active {
+            background-color: white;
+            color: var(--agentgo-primary);
+            box-shadow: 0 1px 2px 0 rgba(50, 56, 62, 0.08), 0 2px 4px 0 rgba(50, 56, 62, 0.08);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 2px;
+            height: 22px;
+            background-color: var(--agentgo-primary);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--agentgo-primary);
+        }
+
+        .nav-item:not(.active) .nav-icon {
+            color: var(--agentgo-text-tertiary);
+        }
+
+        .nav-label {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.42;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 0 12px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .guide-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 42px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--agentgo-neutral-border);
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--agentgo-text-secondary);
+            transition: background-color 0.2s;
+        }
+
+        .guide-button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-info:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--agentgo-neutral-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: var(--agentgo-text-secondary);
+        }
+
+        .user-email {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--agentgo-text-tertiary);
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
         .header {
-          padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 52px;
+            padding: 0 32px;
+            border-bottom: 1px solid transparent;
         }
 
-        .chat-area {
-          padding: 24px 16px;
+        .menu-button {
+            display: none;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
         }
 
-        .chat-input-area {
-          padding: 16px;
+        .menu-button:hover {
+            background-color: var(--agentgo-neutral-soft);
         }
 
-        .chat-input {
-          max-width: 100%;
+        .menu-icon {
+            width: 18px;
+            height: 18px;
         }
 
-        .chat-bubble {
-          max-width: 90%;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .sidebar {
-          width: 100%;
-          max-width: 234px;
+        .header-spacer {
+            flex: 1;
         }
 
         .agent-status {
-          font-size: 12px;
-          padding: 2px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 2px 12px;
+            background-color: var(--agentgo-neutral-soft);
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.42;
+            color: var(--agentgo-neutral-color);
+        }
+
+        .agent-status-count {
+            color: var(--agentgo-primary);
+        }
+
+        .agent-status-icon,
+        .agent-status-dropdown {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ========== CHAT AREA ========== */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .chat-wrapper {
+            max-width: 814px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* User Message Bubble */
+        .chat-bubble {
+            display: inline-flex;
+            padding: 14px 20px;
+            background-color: var(--agentgo-primary-soft);
+            border-radius: 26px 2px 26px 26px;
+            max-width: 80%;
+            box-shadow: 0 1px 2px 0 rgba(50, 56, 62, 0.08);
+            align-self: flex-end;
+        }
+
+        .chat-bubble-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--agentgo-neutral-900);
+        }
+
+        /* AI Response */
+        .chat-response {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .response-intro {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .response-intro-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .response-logo {
+            width: 28px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .response-intro-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--agentgo-neutral-900);
+            flex: 1;
+        }
+
+        .response-divider {
+            width: 100%;
+            height: 1px;
+            background: transparent;
+            position: relative;
+        }
+
+        .response-divider::after {
+            content: '';
+            position: absolute;
+            left: 46px;
+            top: 0;
+            width: calc(100% - 46px);
+            height: 1px;
+            background-color: var(--agentgo-neutral-border);
         }
 
         .response-content {
-          font-size: 14px;
+            width: 100%;
+            font-size: 16px;
+            line-height: 2;
+            color: var(--agentgo-neutral-900);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .response-content strong {
+            font-weight: 700;
+            display: block;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        .response-content strong:first-child {
+            margin-top: 0;
+        }
+
+        /* Web Links Section */
+        .response-links {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .links-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 31px;
         }
 
         .links-title {
-          font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.55;
+            color: black;
+        }
+
+        .links-emoji {
+            font-size: 24px;
+        }
+
+        .collapse-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 2px 12px;
+            border: 1px solid var(--agentgo-neutral-border);
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.42;
+            color: var(--agentgo-neutral-color);
+            transition: background-color 0.2s;
+        }
+
+        .collapse-button:hover {
+            background-color: var(--agentgo-neutral-050);
+        }
+
+        .collapse-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .link-card {
-          height: auto;
-          padding: 12px;
-          flex-direction: column;
-          align-items: flex-start;
+            display: flex;
+            align-items: center;
+            height: 62px;
+            padding: 14px;
+            border: 1px solid var(--agentgo-neutral-border);
+            border-radius: 6px;
+            background: white;
+            box-shadow: 0 1px 2px 0 rgba(50, 56, 62, 0.08);
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .link-card:hover {
+            box-shadow: 0 1px 4px 0 rgba(50, 56, 62, 0.12);
         }
 
         .link-badge {
-          margin-right: 0;
-          margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 23px;
+            height: 20px;
+            padding: 0 7px;
+            background-color: var(--agentgo-primary-soft);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.42;
+            color: var(--agentgo-primary-soft-fg);
+            flex-shrink: 0;
+            margin-right: 10px;
         }
-      }
+
+        .link-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .link-title {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42;
+            color: var(--agentgo-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-description {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--agentgo-text-tertiary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+        }
+
+        .link-button:hover {
+            background-color: var(--agentgo-neutral-050);
+        }
+
+        .link-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--agentgo-text-tertiary);
+        }
+
+        /* ========== CHAT INPUT ========== */
+        .chat-input-area {
+            display: flex;
+            justify-content: center;
+            padding: 16px 32px 24px;
+        }
+
+        .chat-input {
+            width: 100%;
+            max-width: 768px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: white;
+            border: 1px solid #155DFC;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px -2px rgba(50, 56, 62, 0.08), 0 20px 24px -4px rgba(50, 56, 62, 0.08);
+        }
+
+        .chat-input textarea {
+            width: 100%;
+            font-size: 16px;
+            color: var(--agentgo-neutral-900);
+            font-family: 'Pretendard Variable', -apple-system, Roboto, Helvetica, sans-serif;
+            line-height: 1.5;
+            resize: none;
+            border: none;
+            outline: none;
+            background: transparent;
+            min-height: 24px;
+        }
+
+        .chat-input textarea::placeholder {
+            color: var(--agentgo-neutral-disabled);
+        }
+
+        .chat-input-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .input-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 1px solid var(--agentgo-neutral-border);
+            background: transparent;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .input-button:hover {
+            background-color: var(--agentgo-neutral-050);
+        }
+
+        .input-button.send {
+            border: none;
+            background-color: var(--agentgo-neutral-disabled);
+            color: white;
+        }
+
+        .input-button.send:hover:not(:disabled) {
+            background-color: var(--agentgo-neutral-color);
+        }
+
+        .input-button.send:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .input-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ========== MOBILE RESPONSIVE ========== */
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 50;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.2);
+                z-index: 40;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .menu-button {
+                display: flex;
+            }
+
+            .header {
+                padding: 0 16px;
+            }
+
+            .chat-area {
+                padding: 24px 16px;
+            }
+
+            .chat-input-area {
+                padding: 16px;
+            }
+
+            .chat-input {
+                max-width: 100%;
+            }
+
+            .chat-bubble {
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                max-width: 234px;
+            }
+
+            .agent-status {
+                font-size: 12px;
+                padding: 2px 8px;
+            }
+
+            .response-content {
+                font-size: 14px;
+            }
+
+            .links-title {
+                font-size: 16px;
+            }
+
+            .link-card {
+                height: auto;
+                padding: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .link-badge {
+                margin-right: 0;
+                margin-bottom: 8px;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <!-- Sidebar Overlay -->
-      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-      <!-- Sidebar -->
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <svg
-            class="sidebar-logo"
-            viewBox="0 0 28 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M17.1192 0C17.3357 0 17.5484 0.0552074 17.7342 0.158007C17.9201 0.262711 18.0753 0.4112 18.1806 0.592052L27.8448 17.0153C27.9464 17.1885 28 17.3827 28 17.5826C28 17.7806 27.9464 17.9767 27.8448 18.1499L24.7524 23.406C24.6471 23.585 24.4938 23.7354 24.306 23.8401C24.1202 23.9448 23.9075 24 23.691 24H4.3071C4.0906 24 3.87793 23.9448 3.69208 23.8401C3.50623 23.7354 3.35103 23.585 3.24566 23.406L0.155194 18.1499C0.0536475 17.9767 0 17.7806 0 17.5826C0 17.3846 0.0536475 17.1885 0.155194 17.0153L9.81744 0.592052C9.92281 0.413104 10.078 0.262711 10.2639 0.158007C10.4497 0.0533037 10.6624 0 10.8789 0H17.1192ZM7.28261 18.1423C7.28261 18.1423 11.2103 15.519 13.9981 15.519C16.7858 15.519 20.7136 18.1423 20.7136 18.1423L13.9981 6.55255L7.28261 18.1423Z"
-              fill="url(#paint0_linear)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear"
-                x1="14"
-                y1="0"
-                x2="14"
-                y2="24"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#003EC3" />
-                <stop offset="1" stopColor="#0091FF" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <button class="sidebar-toggle" id="sidebarToggle">
-            <svg
-              class="menu-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.25 2.25H15.75C16.1642 2.25 16.5 2.58579 16.5 3V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3C1.5 2.58579 1.83579 2.25 2.25 2.25ZM6 3.75H3V14.25H6V3.75ZM7.5 3.75V14.25H15V3.75H7.5Z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <nav class="sidebar-nav">
-          <button class="nav-item active">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11.9993 2.24996C14.4848 2.24996 16.5 4.27137 16.5 6.74557V15.75H6.00074C3.5152 15.75 1.50001 13.7286 1.50001 11.2544V7.9929C1.96926 8.1588 2.47394 8.25 3.00001 8.25C5.48529 8.25 7.5 6.23525 7.5 3.74996C7.5 3.22391 7.40883 2.71922 7.24293 2.24996H11.9993ZM6.00002 9.75H7.5V8.25H6.00002V9.75ZM10.5 9.75H12V8.25H10.5V9.75ZM2.64698 0.989461C2.77938 0.670118 3.22063 0.67012 3.35303 0.989461L3.54273 1.44796C3.86666 2.23005 4.47116 2.85459 5.23096 3.19259L5.7693 3.43209C6.07701 3.56921 6.07697 4.01711 5.7693 4.15427L5.19947 4.40768C4.45873 4.73714 3.86504 5.33956 3.53541 6.09592L3.35011 6.51999C3.21477 6.83059 2.78524 6.83059 2.64991 6.51999L2.4646 6.09592C2.13496 5.33957 1.54129 4.73714 0.800542 4.40768L0.230717 4.15427C-0.0768878 4.01711 -0.0769237 3.56921 0.230717 3.43209L0.76905 3.19259C1.52884 2.8546 2.13335 2.23007 2.45728 1.44796L2.64698 0.989461Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">Hi, AgentGo</span>
-          </button>
-          <button class="nav-item">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9.25417 1.5066L9 3.00001C6.51473 3.00001 4.50002 5.01475 4.5 7.5C4.5 8.53815 4.85081 9.51855 5.48584 10.3111C5.54988 10.391 6.0902 10.9505 6.17359 11.0413C6.92066 11.8547 7.38043 12.5988 7.4795 13.5H10.5205C10.6195 12.5989 11.0791 11.8549 11.8257 11.042C11.9097 10.9505 12.4483 10.3927 12.5127 10.3125C13.1485 9.51975 13.5 8.53875 13.5 7.5L14.9927 7.24513C14.9962 7.32966 15 7.41461 15 7.5C15 8.9193 14.507 10.2234 13.6831 11.2508C13.2179 11.8308 12 12.75 12 13.875V15.75C12 16.5784 11.3285 17.25 10.5 17.25H7.5C6.67157 17.25 6 16.5784 6 15.75V13.875C5.99997 12.75 4.7809 11.83 4.31543 11.2492C3.49235 10.2222 3 8.91862 3 7.5C3.00002 4.18632 5.68631 1.50001 9 1.50001C9.08512 1.50001 9.16987 1.50308 9.25417 1.5066ZM7.5 15.75H10.5V15H7.5V15.75ZM13.147 0.246277C13.2794 -0.0730546 13.7206 -0.0730635 13.853 0.246277L14.0427 0.704774C14.3667 1.48687 14.9712 2.11141 15.7309 2.4494L16.2693 2.68891C16.577 2.82602 16.577 3.27392 16.2693 3.41108L15.6994 3.66449C14.9587 3.99395 14.365 4.59637 14.0354 5.35272L13.8501 5.77679C13.7148 6.08739 13.2853 6.08739 13.1499 5.77679L12.9653 5.35272C12.6357 4.59625 12.0414 3.99398 11.3006 3.66449L10.7307 3.41108C10.4231 3.27393 10.423 2.82601 10.7307 2.68891L11.2691 2.4494C12.0289 2.11141 12.6334 1.48688 12.9573 0.704774L13.147 0.246277Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">오늘의 업무 요약</span>
-          </button>
-          <button class="nav-item">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15.535 6.09608L15.3501 6.52034C15.2148 6.83094 14.7852 6.83094 14.6498 6.52034L14.465 6.09608C14.1353 5.3396 13.5416 4.73731 12.8008 4.40781L12.231 4.15442C11.923 4.0174 11.923 3.56911 12.231 3.43209L12.7689 3.19286C13.5288 2.85488 14.1332 2.2303 14.4571 1.44812L14.647 0.989648C14.7794 0.670117 15.2206 0.670117 15.353 0.989648L15.5429 1.44812C15.8669 2.2303 16.4712 2.85488 17.2311 3.19286L17.7689 3.43209C18.077 3.56911 18.077 4.0174 17.7689 4.15442L17.1992 4.40781C16.4584 4.73731 15.8647 5.3396 15.535 6.09608ZM1.5 3C1.5 2.58579 1.83579 2.25 2.25 2.25H10.5V3.75H3V14.25H15V8.25H16.5V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3ZM5.25 9.75H6.75V12.75H5.25V9.75ZM8.25 5.25H9.75V12.75H8.25V5.25ZM11.25 7.5H12.75V12.75H11.25V7.5Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">나의 활동</span>
-          </button>
-          <button class="nav-item">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.50508 12.7501C2.18089 12.1886 1.93756 11.6026 1.77148 11.0056C2.50084 10.6334 3.00028 9.8751 3.00028 9.00015C3.00028 8.12587 2.50159 7.368 1.77313 6.99556C2.10817 5.78738 2.74441 4.6622 3.64904 3.74251C4.33601 4.18812 5.2425 4.2415 6.00028 3.804C6.75805 3.36649 7.16506 2.55476 7.12264 1.73703C8.37146 1.41345 9.66401 1.42503 10.8778 1.73896C10.8361 2.55604 11.2431 3.36684 12.0003 3.804C12.7581 4.24149 13.6645 4.18812 14.3514 3.74255C14.7855 4.18489 15.1713 4.68863 15.4955 5.25016C15.8196 5.81167 16.063 6.39769 16.2291 6.99471C15.4997 7.36685 15.0003 8.1252 15.0003 9.00015C15.0003 9.8745 15.4989 10.6323 16.2274 11.0047C15.8924 12.2129 15.2562 13.3381 14.3515 14.2578C13.6645 13.8122 12.7581 13.7588 12.0003 14.1963C11.2425 14.6338 10.8355 15.4456 10.8779 16.2633C9.62914 16.5868 8.33659 16.5753 7.12273 16.2613C7.16442 15.4442 6.75745 14.6335 6.00028 14.1963C5.24252 13.7588 4.33608 13.8121 3.64912 14.2577C3.21511 13.8154 2.82928 13.3117 2.50508 12.7501ZM6.75028 12.8973C7.56881 13.3699 8.15666 14.117 8.43821 14.9744C8.81194 15.01 9.18814 15.0105 9.56194 14.9756C9.84334 14.1178 10.4313 13.3701 11.2503 12.8973C12.0692 12.4244 13.0107 12.2891 13.8944 12.4743C14.1114 12.168 14.2991 11.8419 14.4552 11.5005C13.8534 10.828 13.5003 9.9453 13.5003 9.00015C13.5003 8.055 13.8534 7.1724 14.4552 6.49987C14.3771 6.33037 14.2908 6.16366 14.1964 6.00016C14.102 5.83664 14.0007 5.67861 13.893 5.52631C13.0098 5.71107 12.0688 5.5756 11.2503 5.10304C10.4317 4.63046 9.84394 3.88326 9.56231 3.02591C9.18866 2.99035 8.81239 2.98984 8.43866 3.02469C8.15719 3.88253 7.56919 4.63023 6.75028 5.10304C5.93134 5.57585 4.98982 5.7112 4.1062 5.52602C3.88912 5.83231 3.70146 6.15838 3.54541 6.49978C4.14709 7.17233 4.50028 8.055 4.50028 9.00015C4.50028 9.9453 4.14711 10.8279 3.54541 11.5004C3.62349 11.6699 3.70972 11.8366 3.80413 12.0001C3.89853 12.1636 3.99979 12.3217 4.10758 12.474C4.99081 12.2893 5.93177 12.4247 6.75028 12.8973ZM9.00026 11.2501C7.75766 11.2501 6.75028 10.2428 6.75028 9.00015C6.75028 7.75755 7.75766 6.75016 9.00026 6.75016C10.2429 6.75016 11.2503 7.75755 11.2503 9.00015C11.2503 10.2428 10.2429 11.2501 9.00026 11.2501ZM9.00026 9.75015C9.41449 9.75015 9.75026 9.41437 9.75026 9.00015C9.75026 8.58592 9.41449 8.25015 9.00026 8.25015C8.58604 8.25015 8.25026 8.58592 8.25026 9.00015C8.25026 9.41437 8.58604 9.75015 9.00026 9.75015Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">나의 에이전트 설정</span>
-          </button>
-          <button class="nav-item">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.25 2.25H15.75C16.1642 2.25 16.5 2.58579 16.5 3V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3C1.5 2.58579 1.83579 2.25 2.25 2.25ZM15 5.42844L9.05385 10.7535L3 5.41195V14.25H15V5.42844ZM3.38359 3.75L9.04642 8.7465L14.6257 3.75H3.38359Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">Teams</span>
-          </button>
-          <button class="nav-item">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M5.0625 1.875C6.82291 1.875 8.25 3.30209 8.25 5.0625V8.25H5.0625C3.30209 8.25 1.875 6.82291 1.875 5.0625C1.875 3.30209 3.30209 1.875 5.0625 1.875ZM6.75 6.75V5.0625C6.75 4.13052 5.99448 3.375 5.0625 3.375C4.13052 3.375 3.375 4.13052 3.375 5.0625C3.375 5.99448 4.13052 6.75 5.0625 6.75H6.75ZM5.0625 9.75H8.25V12.9375C8.25 14.6979 6.82291 16.125 5.0625 16.125C3.30209 16.125 1.875 14.6979 1.875 12.9375C1.875 11.1771 3.30209 9.75 5.0625 9.75ZM5.0625 11.25C4.13052 11.25 3.375 12.0056 3.375 12.9375C3.375 13.8694 4.13052 14.625 5.0625 14.625C5.99448 14.625 6.75 13.8694 6.75 12.9375V11.25H5.0625ZM12.9375 1.875C14.6979 1.875 16.125 3.30209 16.125 5.0625C16.125 6.82291 14.6979 8.25 12.9375 8.25H9.75V5.0625C9.75 3.30209 11.1771 1.875 12.9375 1.875ZM12.9375 6.75C13.8694 6.75 14.625 5.99448 14.625 5.0625C14.625 4.13052 13.8694 3.375 12.9375 3.375C12.0056 3.375 11.25 4.13052 11.25 5.0625V6.75H12.9375ZM9.75 9.75H12.9375C14.6979 9.75 16.125 11.1771 16.125 12.9375C16.125 14.6979 14.6979 16.125 12.9375 16.125C11.1771 16.125 9.75 14.6979 9.75 12.9375V9.75ZM11.25 11.25V12.9375C11.25 13.8694 12.0056 14.625 12.9375 14.625C13.8694 14.625 14.625 13.8694 14.625 12.9375C14.625 12.0056 13.8694 11.25 12.9375 11.25H11.25Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">Portal</span>
-          </button>
-        </nav>
-
-        <div class="sidebar-bottom">
-          <button class="guide-button">
-            <svg
-              class="nav-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M14.25 16.5H3.75C2.50736 16.5 1.5 15.4927 1.5 14.25V2.25C1.5 1.83579 1.83579 1.5 2.25 1.5H12.75C13.1642 1.5 13.5 1.83579 13.5 2.25V11.25H16.5V14.25C16.5 15.4927 15.4927 16.5 14.25 16.5ZM13.5 12.75V14.25C13.5 14.6642 13.8358 15 14.25 15C14.6642 15 15 14.6642 15 14.25V12.75H13.5ZM12 15V3H3V14.25C3 14.6642 3.33579 15 3.75 15H12ZM4.5 5.25H10.5V6.75H4.5V5.25ZM4.5 8.25H10.5V9.75H4.5V8.25ZM4.5 11.25H8.25V12.75H4.5V11.25Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span class="nav-label">이용가이드</span>
-          </button>
-
-          <div class="user-info">
-            <div class="user-avatar">
-              <svg
-                style="width: 20px; height: 20px"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M16.6673 18.3333H15.0007V16.6666C15.0007 15.2859 13.8814 14.1666 12.5007 14.1666H7.50065C6.11994 14.1666 5.00065 15.2859 5.00065 16.6666V18.3333H3.33398V16.6666C3.33398 14.3655 5.19947 12.5 7.50065 12.5H12.5007C14.8018 12.5 16.6673 14.3655 16.6673 16.6666V18.3333ZM10.0007 10.8333C7.23923 10.8333 5.00065 8.59473 5.00065 5.83331C5.00065 3.07189 7.23923 0.833313 10.0007 0.833313C12.7621 0.833313 15.0007 3.07189 15.0007 5.83331C15.0007 8.59473 12.7621 10.8333 10.0007 10.8333ZM10.0007 9.16665C11.8416 9.16665 13.334 7.67426 13.334 5.83331C13.334 3.99236 11.8416 2.49998 10.0007 2.49998C8.1597 2.49998 6.66732 3.99236 6.66732 5.83331C6.66732 7.67426 8.1597 9.16665 10.0007 9.16665Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </div>
-            <div class="user-details">
-              <div class="user-name">홍길동</div>
-              <div class="user-email">gildong@itcen.com</div>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Main Content -->
-      <main class="main">
-        <header class="header">
-          <button class="menu-button" id="menuButton">
-            <svg
-              class="menu-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.25 2.25H15.75C16.1642 2.25 16.5 2.58579 16.5 3V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3C1.5 2.58579 1.83579 2.25 2.25 2.25ZM6 3.75H3V14.25H6V3.75ZM7.5 3.75V14.25H15V3.75H7.5Z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
-          <div class="header-spacer"></div>
-          <div class="agent-status">
-            <svg
-              class="agent-status-icon"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.50508 12.7501C2.18089 12.1886 1.93756 11.6026 1.77148 11.0056C2.50084 10.6334 3.00028 9.8751 3.00028 9.00015C3.00028 8.12587 2.50159 7.368 1.77313 6.99556C2.10817 5.78738 2.74441 4.6622 3.64904 3.74251C4.33601 4.18812 5.2425 4.2415 6.00028 3.804C6.75805 3.36649 7.16506 2.55476 7.12264 1.73703C8.37146 1.41345 9.66401 1.42503 10.8778 1.73896C10.8361 2.55604 11.2431 3.36684 12.0003 3.804C12.7581 4.24149 13.6645 4.18812 14.3514 3.74255C14.7855 4.18489 15.1713 4.68863 15.4955 5.25016C15.8196 5.81167 16.063 6.39769 16.2291 6.99471C15.4997 7.36685 15.0003 8.1252 15.0003 9.00015C15.0003 9.8745 15.4989 10.6323 16.2274 11.0047C15.8924 12.2129 15.2562 13.3381 14.3515 14.2578C13.6645 13.8122 12.7581 13.7588 12.0003 14.1963C11.2425 14.6338 10.8355 15.4456 10.8779 16.2633C9.62914 16.5868 8.33659 16.5753 7.12273 16.2613C7.16442 15.4442 6.75745 14.6335 6.00028 14.1963C5.24252 13.7588 4.33608 13.8121 3.64912 14.2577C3.21511 13.8154 2.82928 13.3117 2.50508 12.7501ZM6.75028 12.8973C7.56881 13.3699 8.15666 14.117 8.43821 14.9744C8.81194 15.01 9.18814 15.0105 9.56194 14.9756C9.84334 14.1178 10.4313 13.3701 11.2503 12.8973C12.0692 12.4244 13.0107 12.2891 13.8944 12.4743C14.1114 12.168 14.2991 11.8419 14.4552 11.5005C13.8534 10.828 13.5003 9.9453 13.5003 9.00015C13.5003 8.055 13.8534 7.1724 14.4552 6.49987C14.3771 6.33037 14.2908 6.16366 14.1964 6.00016C14.102 5.83664 14.0007 5.67861 13.893 5.52631C13.0098 5.71107 12.0688 5.5756 11.2503 5.10304C10.4317 4.63046 9.84394 3.88326 9.56231 3.02591C9.18866 2.99035 8.81239 2.98984 8.43866 3.02469C8.15719 3.88253 7.56919 4.63023 6.75028 5.10304C5.93134 5.57585 4.98982 5.7112 4.1062 5.52602C3.88912 5.83231 3.70146 6.15838 3.54541 6.49978C4.14709 7.17233 4.50028 8.055 4.50028 9.00015C4.50028 9.9453 4.14711 10.8279 3.54541 11.5004C3.62349 11.6699 3.70972 11.8366 3.80413 12.0001C3.89853 12.1636 3.99979 12.3217 4.10758 12.474C4.99081 12.2893 5.93177 12.4247 6.75028 12.8973ZM9.00026 11.2501C7.75766 11.2501 6.75028 10.2428 6.75028 9.00015C6.75028 7.75755 7.75766 6.75016 9.00026 6.75016C10.2429 6.75016 11.2503 7.75755 11.2503 9.00015C11.2503 10.2428 10.2429 11.2501 9.00026 11.2501ZM9.00026 9.75015C9.41449 9.75015 9.75026 9.41437 9.75026 9.00015C9.75026 8.58592 9.41449 8.25015 9.00026 8.25015C8.58604 8.25015 8.25026 8.58592 8.25026 9.00015C8.25026 9.41437 8.58604 9.75015 9.00026 9.75015Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span
-              >활성 에이전트 <span class="agent-status-count">9</span>개</span
-            >
-            <svg
-              class="agent-status-dropdown"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.99949 9.87855L12.7118 6.16626L13.7725 7.22692L8.99949 11.9999L4.22656 7.22692L5.28722 6.16626L8.99949 9.87855Z"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
-        </header>
-
-        <div class="chat-area">
-          <div class="chat-wrapper">
-            <!-- User Message -->
-            <div class="chat-bubble">
-              <div class="chat-bubble-text">
-                나라에서 지정한 휴가 규정을 간략하게 알려줘
-              </div>
-            </div>
-
-            <!-- AI Response -->
-            <div class="chat-response">
-              <div class="response-intro">
-                <div class="response-intro-header">
-                  <svg
-                    class="response-logo"
-                    viewBox="0 0 28 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M17.1192 0C17.3357 0 17.5484 0.0552074 17.7342 0.158007C17.9201 0.262711 18.0753 0.4112 18.1806 0.592052L27.8448 17.0153C27.9464 17.1885 28 17.3827 28 17.5826C28 17.7806 27.9464 17.9767 27.8448 18.1499L24.7524 23.406C24.6471 23.585 24.4938 23.7354 24.306 23.8401C24.1202 23.9448 23.9075 24 23.691 24H4.3071C4.0906 24 3.87793 23.9448 3.69208 23.8401C3.50623 23.7354 3.35103 23.585 3.24566 23.406L0.155194 18.1499C0.0536475 17.9767 0 17.7806 0 17.5826C0 17.3846 0.0536475 17.1885 0.155194 17.0153L9.81744 0.592052C9.92281 0.413104 10.078 0.262711 10.2639 0.158007C10.4497 0.0533037 10.6624 0 10.8789 0H17.1192ZM7.28261 18.1423C7.28261 18.1423 11.2103 15.519 13.9981 15.519C16.7858 15.519 20.7136 18.1423 20.7136 18.1423L13.9981 6.55255L7.28261 18.1423Z"
-                      fill="url(#paint0_linear)"
-                    />
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <svg class="sidebar-logo" viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.1192 0C17.3357 0 17.5484 0.0552074 17.7342 0.158007C17.9201 0.262711 18.0753 0.4112 18.1806 0.592052L27.8448 17.0153C27.9464 17.1885 28 17.3827 28 17.5826C28 17.7806 27.9464 17.9767 27.8448 18.1499L24.7524 23.406C24.6471 23.585 24.4938 23.7354 24.306 23.8401C24.1202 23.9448 23.9075 24 23.691 24H4.3071C4.0906 24 3.87793 23.9448 3.69208 23.8401C3.50623 23.7354 3.35103 23.585 3.24566 23.406L0.155194 18.1499C0.0536475 17.9767 0 17.7806 0 17.5826C0 17.3846 0.0536475 17.1885 0.155194 17.0153L9.81744 0.592052C9.92281 0.413104 10.078 0.262711 10.2639 0.158007C10.4497 0.0533037 10.6624 0 10.8789 0H17.1192ZM7.28261 18.1423C7.28261 18.1423 11.2103 15.519 13.9981 15.519C16.7858 15.519 20.7136 18.1423 20.7136 18.1423L13.9981 6.55255L7.28261 18.1423Z" fill="url(#paint0_linear)"/>
                     <defs>
-                      <linearGradient
-                        id="paint0_linear"
-                        x1="14"
-                        y1="0"
-                        x2="14"
-                        y2="24"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stopColor="#003EC3" />
-                        <stop offset="1" stopColor="#0091FF" />
-                      </linearGradient>
+                        <linearGradient id="paint0_linear" x1="14" y1="0" x2="14" y2="24" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#003EC3"/>
+                            <stop offset="1" stopColor="#0091FF"/>
+                        </linearGradient>
                     </defs>
-                  </svg>
-                  <div class="response-intro-text">
-                    나라에서 지정한 휴가 규정은 주로 근로기준법과 관공서의
-                    공휴일에 관한 규정에 따라 정해집니다.
-                  </div>
-                </div>
-                <div class="response-divider"></div>
-              </div>
-
-              <div class="response-content">
-                <strong>1. 공휴일</strong>
-                관공서의 공휴일에 관한 규정: 국경일, 신정, 설 연휴, 삼일절,
-                근로자의 날, 어린이날, 부처님오신날, 현충일, 광복절, 추석 연휴,
-                개천절, 한글날, 성탄절, 공직선거일, 대체공휴일 등이 포함됩니다.
-                대체공휴일 제도: 공휴일이 주말이나 다른 공휴일과 겹칠 경우,
-                비공휴일을 추가 휴일로 지정하여 휴무하게 하는 제도입니다.
-                <strong>2. 연차유급휴가 (근로기준법)</strong>
-                1년 80% 이상 출근 시: 15일의 유급휴가가 부여됩니다. 1년 미만
-                근로 또는 80% 미만 출근 시: 1개월 개근 시 1일의 유급휴가가
-                부여됩니다. 3년 이상 근속 시: 최초 1년을 초과하는 계속 근로 연수
-                매 2년에 대하여 1일을 가산하며, 총 휴가일수는 25일을 한도로
-                합니다. 회사는 근로자가 청구한 시기에 휴가를 주어야 하지만, 사업
-                운영에 막대한 지장이 있는 경우 시기를 변경할 수 있습니다.
-              </div>
-
-              <div class="response-links">
-                <div class="links-header">
-                  <div class="links-title">
-                    <span class="links-emoji">💻</span>
-                    <span>사이트 (3개)</span>
-                  </div>
-                  <button class="collapse-button">
-                    <svg
-                      class="collapse-icon"
-                      viewBox="0 0 18 18"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M8.99949 8.1213L5.28722 11.8337L4.22656 10.773L8.99949 6L13.7725 10.773L12.7118 11.8337L8.99949 8.1213Z"
-                        fill="currentColor"
-                      />
+                </svg>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <svg class="menu-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.25 2.25H15.75C16.1642 2.25 16.5 2.58579 16.5 3V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3C1.5 2.58579 1.83579 2.25 2.25 2.25ZM6 3.75H3V14.25H6V3.75ZM7.5 3.75V14.25H15V3.75H7.5Z" fill="currentColor"/>
                     </svg>
-                    <span>접기</span>
-                  </button>
-                </div>
-
-                <div class="links-container">
-                  <div class="link-card">
-                    <div class="link-badge">1</div>
-                    <div class="link-content">
-                      <div class="link-title">
-                        행정규칙 > 정부청사관리본부 방호직렬 공무원 운영 규정 |
-                        국가법령 ...
-                      </div>
-                      <div class="link-description">
-                        2022. 5. 27. ... 제4조(조직) ① 「보안업무규정」에 따른
-                        국가보안시설로 지정된 ... ② 방호공무원의 휴가일수
-                        산정은「국가공무원 복무규...
-                      </div>
-                    </div>
-                    <button class="link-button">
-                      <svg
-                        class="link-icon"
-                        viewBox="0 0 18 18"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7.5 2.25V3.75H3.75V14.25H14.25V10.5H15.75V15C15.75 15.4142 15.4142 15.75 15 15.75H3C2.58579 15.75 2.25 15.4142 2.25 15V3C2.25 2.58579 2.58579 2.25 3 2.25H7.5ZM13.1894 3.75H9.75V2.25H15.75V8.25H14.25V4.81066L9 10.0606L7.93935 9L13.1894 3.75Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div class="link-card">
-                    <div class="link-badge">2</div>
-                    <div class="link-content">
-                      <div class="link-title">
-                        법령 > 본문 > 국가공무원 복무규정 | 국가법령정보센터
-                      </div>
-                      <div class="link-description">
-                        ... 지정하여 휴무하게 할 수 있다. 1. 「공직선거법」
-                        제146조의2제1항에 따른 ... 이 경우 종전의 규정에 따라
-                        사용한 휴가 일수는 제20조제...
-                      </div>
-                    </div>
-                    <button class="link-button">
-                      <svg
-                        class="link-icon"
-                        viewBox="0 0 18 18"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7.5 2.25V3.75H3.75V14.25H14.25V10.5H15.75V15C15.75 15.4142 15.4142 15.75 15 15.75H3C2.58579 15.75 2.25 15.4142 2.25 15V3C2.25 2.58579 2.58579 2.25 3 2.25H7.5ZM13.1894 3.75H9.75V2.25H15.75V8.25H14.25V4.81066L9 10.0606L7.93935 9L13.1894 3.75Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div class="link-card">
-                    <div class="link-badge">3</div>
-                    <div class="link-content">
-                      <div class="link-title">
-                        행정규칙 > 현장 소방공무원 복무규칙 | 국가법령정보센터
-                      </div>
-                      <div class="link-description">
-                        2022. 10. 21. ... ... 기준(별도 기준 수립시). 7.
-                        부득이한 경우를 제외하고는 휴가자 등 발생에 따른
-                        대체근무자 지정 자제. ② 소방기관의...
-                      </div>
-                    </div>
-                    <button class="link-button">
-                      <svg
-                        class="link-icon"
-                        viewBox="0 0 18 18"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7.5 2.25V3.75H3.75V14.25H14.25V10.5H15.75V15C15.75 15.4142 15.4142 15.75 15 15.75H3C2.58579 15.75 2.25 15.4142 2.25 15V3C2.25 2.58579 2.58579 2.25 3 2.25H7.5ZM13.1894 3.75H9.75V2.25H15.75V8.25H14.25V4.81066L9 10.0606L7.93935 9L13.1894 3.75Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
+                </button>
             </div>
-          </div>
-        </div>
 
-        <div class="chat-input-area">
-          <div class="chat-input">
-            <textarea
-              placeholder="AgentGo에게 물어보세요."
-              id="messageInput"
-            ></textarea>
-            <div class="chat-input-controls">
-              <button class="input-button">
-                <svg
-                  class="input-icon"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M11.1225 5.81805L6.87983 10.0607C6.58693 10.3535 6.58693 10.8284 6.87983 11.1213C7.17272 11.4143 7.6476 11.4143 7.94048 11.1213L12.1832 6.87871C13.0618 6.00003 13.0618 4.57541 12.1832 3.69673C11.3045 2.81805 9.87983 2.81805 9.00113 3.69673L4.7585 7.93937C3.29404 9.40382 3.29404 11.7782 4.7585 13.2427C6.22297 14.7071 8.59733 14.7071 10.0618 13.2427L14.3045 9.00002L15.3651 10.0607L11.1225 14.3033C9.07223 16.3535 5.7481 16.3535 3.69785 14.3033C1.64759 12.2531 1.64759 8.929 3.69785 6.87871L7.94048 2.63607C9.40493 1.1716 11.7794 1.1716 13.2438 2.63607C14.7083 4.10053 14.7083 6.4749 13.2438 7.93937L9.00113 12.182C8.1225 13.0607 6.69785 13.0607 5.81917 12.182C4.94048 11.3033 4.94048 9.87872 5.81917 9.00002L10.0618 4.75739L11.1225 5.81805Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </button>
-              <button class="input-button send" id="sendButton">
-                <svg
-                  class="input-icon"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9.74965 5.87132V15H8.24965V5.87132L4.22668 9.8943L3.16602 8.83365L8.99965 3L14.8333 8.83365L13.7727 9.8943L9.74965 5.87132Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </button>
+            <nav class="sidebar-nav">
+                <button class="nav-item active">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11.9993 2.24996C14.4848 2.24996 16.5 4.27137 16.5 6.74557V15.75H6.00074C3.5152 15.75 1.50001 13.7286 1.50001 11.2544V7.9929C1.96926 8.1588 2.47394 8.25 3.00001 8.25C5.48529 8.25 7.5 6.23525 7.5 3.74996C7.5 3.22391 7.40883 2.71922 7.24293 2.24996H11.9993ZM6.00002 9.75H7.5V8.25H6.00002V9.75ZM10.5 9.75H12V8.25H10.5V9.75ZM2.64698 0.989461C2.77938 0.670118 3.22063 0.67012 3.35303 0.989461L3.54273 1.44796C3.86666 2.23005 4.47116 2.85459 5.23096 3.19259L5.7693 3.43209C6.07701 3.56921 6.07697 4.01711 5.7693 4.15427L5.19947 4.40768C4.45873 4.73714 3.86504 5.33956 3.53541 6.09592L3.35011 6.51999C3.21477 6.83059 2.78524 6.83059 2.64991 6.51999L2.4646 6.09592C2.13496 5.33957 1.54129 4.73714 0.800542 4.40768L0.230717 4.15427C-0.0768878 4.01711 -0.0769237 3.56921 0.230717 3.43209L0.76905 3.19259C1.52884 2.8546 2.13335 2.23007 2.45728 1.44796L2.64698 0.989461Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Hi, AgentGo</span>
+                </button>
+                <button class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9.25417 1.5066L9 3.00001C6.51473 3.00001 4.50002 5.01475 4.5 7.5C4.5 8.53815 4.85081 9.51855 5.48584 10.3111C5.54988 10.391 6.0902 10.9505 6.17359 11.0413C6.92066 11.8547 7.38043 12.5988 7.4795 13.5H10.5205C10.6195 12.5989 11.0791 11.8549 11.8257 11.042C11.9097 10.9505 12.4483 10.3927 12.5127 10.3125C13.1485 9.51975 13.5 8.53875 13.5 7.5L14.9927 7.24513C14.9962 7.32966 15 7.41461 15 7.5C15 8.9193 14.507 10.2234 13.6831 11.2508C13.2179 11.8308 12 12.75 12 13.875V15.75C12 16.5784 11.3285 17.25 10.5 17.25H7.5C6.67157 17.25 6 16.5784 6 15.75V13.875C5.99997 12.75 4.7809 11.83 4.31543 11.2492C3.49235 10.2222 3 8.91862 3 7.5C3.00002 4.18632 5.68631 1.50001 9 1.50001C9.08512 1.50001 9.16987 1.50308 9.25417 1.5066ZM7.5 15.75H10.5V15H7.5V15.75ZM13.147 0.246277C13.2794 -0.0730546 13.7206 -0.0730635 13.853 0.246277L14.0427 0.704774C14.3667 1.48687 14.9712 2.11141 15.7309 2.4494L16.2693 2.68891C16.577 2.82602 16.577 3.27392 16.2693 3.41108L15.6994 3.66449C14.9587 3.99395 14.365 4.59637 14.0354 5.35272L13.8501 5.77679C13.7148 6.08739 13.2853 6.08739 13.1499 5.77679L12.9653 5.35272C12.6357 4.59625 12.0414 3.99398 11.3006 3.66449L10.7307 3.41108C10.4231 3.27393 10.423 2.82601 10.7307 2.68891L11.2691 2.4494C12.0289 2.11141 12.6334 1.48688 12.9573 0.704774L13.147 0.246277Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">오늘의 업무 요약</span>
+                </button>
+                <button class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.535 6.09608L15.3501 6.52034C15.2148 6.83094 14.7852 6.83094 14.6498 6.52034L14.465 6.09608C14.1353 5.3396 13.5416 4.73731 12.8008 4.40781L12.231 4.15442C11.923 4.0174 11.923 3.56911 12.231 3.43209L12.7689 3.19286C13.5288 2.85488 14.1332 2.2303 14.4571 1.44812L14.647 0.989648C14.7794 0.670117 15.2206 0.670117 15.353 0.989648L15.5429 1.44812C15.8669 2.2303 16.4712 2.85488 17.2311 3.19286L17.7689 3.43209C18.077 3.56911 18.077 4.0174 17.7689 4.15442L17.1992 4.40781C16.4584 4.73731 15.8647 5.3396 15.535 6.09608ZM1.5 3C1.5 2.58579 1.83579 2.25 2.25 2.25H10.5V3.75H3V14.25H15V8.25H16.5V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3ZM5.25 9.75H6.75V12.75H5.25V9.75ZM8.25 5.25H9.75V12.75H8.25V5.25ZM11.25 7.5H12.75V12.75H11.25V7.5Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">나의 활동</span>
+                </button>
+                <button class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.50508 12.7501C2.18089 12.1886 1.93756 11.6026 1.77148 11.0056C2.50084 10.6334 3.00028 9.8751 3.00028 9.00015C3.00028 8.12587 2.50159 7.368 1.77313 6.99556C2.10817 5.78738 2.74441 4.6622 3.64904 3.74251C4.33601 4.18812 5.2425 4.2415 6.00028 3.804C6.75805 3.36649 7.16506 2.55476 7.12264 1.73703C8.37146 1.41345 9.66401 1.42503 10.8778 1.73896C10.8361 2.55604 11.2431 3.36684 12.0003 3.804C12.7581 4.24149 13.6645 4.18812 14.3514 3.74255C14.7855 4.18489 15.1713 4.68863 15.4955 5.25016C15.8196 5.81167 16.063 6.39769 16.2291 6.99471C15.4997 7.36685 15.0003 8.1252 15.0003 9.00015C15.0003 9.8745 15.4989 10.6323 16.2274 11.0047C15.8924 12.2129 15.2562 13.3381 14.3515 14.2578C13.6645 13.8122 12.7581 13.7588 12.0003 14.1963C11.2425 14.6338 10.8355 15.4456 10.8779 16.2633C9.62914 16.5868 8.33659 16.5753 7.12273 16.2613C7.16442 15.4442 6.75745 14.6335 6.00028 14.1963C5.24252 13.7588 4.33608 13.8121 3.64912 14.2577C3.21511 13.8154 2.82928 13.3117 2.50508 12.7501ZM6.75028 12.8973C7.56881 13.3699 8.15666 14.117 8.43821 14.9744C8.81194 15.01 9.18814 15.0105 9.56194 14.9756C9.84334 14.1178 10.4313 13.3701 11.2503 12.8973C12.0692 12.4244 13.0107 12.2891 13.8944 12.4743C14.1114 12.168 14.2991 11.8419 14.4552 11.5005C13.8534 10.828 13.5003 9.9453 13.5003 9.00015C13.5003 8.055 13.8534 7.1724 14.4552 6.49987C14.3771 6.33037 14.2908 6.16366 14.1964 6.00016C14.102 5.83664 14.0007 5.67861 13.893 5.52631C13.0098 5.71107 12.0688 5.5756 11.2503 5.10304C10.4317 4.63046 9.84394 3.88326 9.56231 3.02591C9.18866 2.99035 8.81239 2.98984 8.43866 3.02469C8.15719 3.88253 7.56919 4.63023 6.75028 5.10304C5.93134 5.57585 4.98982 5.7112 4.1062 5.52602C3.88912 5.83231 3.70146 6.15838 3.54541 6.49978C4.14709 7.17233 4.50028 8.055 4.50028 9.00015C4.50028 9.9453 4.14711 10.8279 3.54541 11.5004C3.62349 11.6699 3.70972 11.8366 3.80413 12.0001C3.89853 12.1636 3.99979 12.3217 4.10758 12.474C4.99081 12.2893 5.93177 12.4247 6.75028 12.8973ZM9.00026 11.2501C7.75766 11.2501 6.75028 10.2428 6.75028 9.00015C6.75028 7.75755 7.75766 6.75016 9.00026 6.75016C10.2429 6.75016 11.2503 7.75755 11.2503 9.00015C11.2503 10.2428 10.2429 11.2501 9.00026 11.2501ZM9.00026 9.75015C9.41449 9.75015 9.75026 9.41437 9.75026 9.00015C9.75026 8.58592 9.41449 8.25015 9.00026 8.25015C8.58604 8.25015 8.25026 8.58592 8.25026 9.00015C8.25026 9.41437 8.58604 9.75015 9.00026 9.75015Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">나의 에이전트 설정</span>
+                </button>
+                <button class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.25 2.25H15.75C16.1642 2.25 16.5 2.58579 16.5 3V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3C1.5 2.58579 1.83579 2.25 2.25 2.25ZM15 5.42844L9.05385 10.7535L3 5.41195V14.25H15V5.42844ZM3.38359 3.75L9.04642 8.7465L14.6257 3.75H3.38359Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Teams</span>
+                </button>
+                <button class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.0625 1.875C6.82291 1.875 8.25 3.30209 8.25 5.0625V8.25H5.0625C3.30209 8.25 1.875 6.82291 1.875 5.0625C1.875 3.30209 3.30209 1.875 5.0625 1.875ZM6.75 6.75V5.0625C6.75 4.13052 5.99448 3.375 5.0625 3.375C4.13052 3.375 3.375 4.13052 3.375 5.0625C3.375 5.99448 4.13052 6.75 5.0625 6.75H6.75ZM5.0625 9.75H8.25V12.9375C8.25 14.6979 6.82291 16.125 5.0625 16.125C3.30209 16.125 1.875 14.6979 1.875 12.9375C1.875 11.1771 3.30209 9.75 5.0625 9.75ZM5.0625 11.25C4.13052 11.25 3.375 12.0056 3.375 12.9375C3.375 13.8694 4.13052 14.625 5.0625 14.625C5.99448 14.625 6.75 13.8694 6.75 12.9375V11.25H5.0625ZM12.9375 1.875C14.6979 1.875 16.125 3.30209 16.125 5.0625C16.125 6.82291 14.6979 8.25 12.9375 8.25H9.75V5.0625C9.75 3.30209 11.1771 1.875 12.9375 1.875ZM12.9375 6.75C13.8694 6.75 14.625 5.99448 14.625 5.0625C14.625 4.13052 13.8694 3.375 12.9375 3.375C12.0056 3.375 11.25 4.13052 11.25 5.0625V6.75H12.9375ZM9.75 9.75H12.9375C14.6979 9.75 16.125 11.1771 16.125 12.9375C16.125 14.6979 14.6979 16.125 12.9375 16.125C11.1771 16.125 9.75 14.6979 9.75 12.9375V9.75ZM11.25 11.25V12.9375C11.25 13.8694 12.0056 14.625 12.9375 14.625C13.8694 14.625 14.625 13.8694 14.625 12.9375C14.625 12.0056 13.8694 11.25 12.9375 11.25H11.25Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">Portal</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <button class="guide-button">
+                    <svg class="nav-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.25 16.5H3.75C2.50736 16.5 1.5 15.4927 1.5 14.25V2.25C1.5 1.83579 1.83579 1.5 2.25 1.5H12.75C13.1642 1.5 13.5 1.83579 13.5 2.25V11.25H16.5V14.25C16.5 15.4927 15.4927 16.5 14.25 16.5ZM13.5 12.75V14.25C13.5 14.6642 13.8358 15 14.25 15C14.6642 15 15 14.6642 15 14.25V12.75H13.5ZM12 15V3H3V14.25C3 14.6642 3.33579 15 3.75 15H12ZM4.5 5.25H10.5V6.75H4.5V5.25ZM4.5 8.25H10.5V9.75H4.5V8.25ZM4.5 11.25H8.25V12.75H4.5V11.25Z" fill="currentColor"/>
+                    </svg>
+                    <span class="nav-label">이용가이드</span>
+                </button>
+
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <svg style="width: 20px; height: 20px;" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16.6673 18.3333H15.0007V16.6666C15.0007 15.2859 13.8814 14.1666 12.5007 14.1666H7.50065C6.11994 14.1666 5.00065 15.2859 5.00065 16.6666V18.3333H3.33398V16.6666C3.33398 14.3655 5.19947 12.5 7.50065 12.5H12.5007C14.8018 12.5 16.6673 14.3655 16.6673 16.6666V18.3333ZM10.0007 10.8333C7.23923 10.8333 5.00065 8.59473 5.00065 5.83331C5.00065 3.07189 7.23923 0.833313 10.0007 0.833313C12.7621 0.833313 15.0007 3.07189 15.0007 5.83331C15.0007 8.59473 12.7621 10.8333 10.0007 10.8333ZM10.0007 9.16665C11.8416 9.16665 13.334 7.67426 13.334 5.83331C13.334 3.99236 11.8416 2.49998 10.0007 2.49998C8.1597 2.49998 6.66732 3.99236 6.66732 5.83331C6.66732 7.67426 8.1597 9.16665 10.0007 9.16665Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">홍길동</div>
+                        <div class="user-email">gildong@itcen.com</div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
+        </aside>
 
-        <div class="background-effects">
-          <div class="blur-circle-1"></div>
-          <div class="blur-circle-2"></div>
-        </div>
-      </main>
+        <!-- Main Content -->
+        <main class="main">
+            <header class="header">
+                <button class="menu-button" id="menuButton">
+                    <svg class="menu-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.25 2.25H15.75C16.1642 2.25 16.5 2.58579 16.5 3V15C16.5 15.4142 16.1642 15.75 15.75 15.75H2.25C1.83579 15.75 1.5 15.4142 1.5 15V3C1.5 2.58579 1.83579 2.25 2.25 2.25ZM6 3.75H3V14.25H6V3.75ZM7.5 3.75V14.25H15V3.75H7.5Z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="header-spacer"></div>
+                <div class="agent-status">
+                    <svg class="agent-status-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.50508 12.7501C2.18089 12.1886 1.93756 11.6026 1.77148 11.0056C2.50084 10.6334 3.00028 9.8751 3.00028 9.00015C3.00028 8.12587 2.50159 7.368 1.77313 6.99556C2.10817 5.78738 2.74441 4.6622 3.64904 3.74251C4.33601 4.18812 5.2425 4.2415 6.00028 3.804C6.75805 3.36649 7.16506 2.55476 7.12264 1.73703C8.37146 1.41345 9.66401 1.42503 10.8778 1.73896C10.8361 2.55604 11.2431 3.36684 12.0003 3.804C12.7581 4.24149 13.6645 4.18812 14.3514 3.74255C14.7855 4.18489 15.1713 4.68863 15.4955 5.25016C15.8196 5.81167 16.063 6.39769 16.2291 6.99471C15.4997 7.36685 15.0003 8.1252 15.0003 9.00015C15.0003 9.8745 15.4989 10.6323 16.2274 11.0047C15.8924 12.2129 15.2562 13.3381 14.3515 14.2578C13.6645 13.8122 12.7581 13.7588 12.0003 14.1963C11.2425 14.6338 10.8355 15.4456 10.8779 16.2633C9.62914 16.5868 8.33659 16.5753 7.12273 16.2613C7.16442 15.4442 6.75745 14.6335 6.00028 14.1963C5.24252 13.7588 4.33608 13.8121 3.64912 14.2577C3.21511 13.8154 2.82928 13.3117 2.50508 12.7501ZM6.75028 12.8973C7.56881 13.3699 8.15666 14.117 8.43821 14.9744C8.81194 15.01 9.18814 15.0105 9.56194 14.9756C9.84334 14.1178 10.4313 13.3701 11.2503 12.8973C12.0692 12.4244 13.0107 12.2891 13.8944 12.4743C14.1114 12.168 14.2991 11.8419 14.4552 11.5005C13.8534 10.828 13.5003 9.9453 13.5003 9.00015C13.5003 8.055 13.8534 7.1724 14.4552 6.49987C14.3771 6.33037 14.2908 6.16366 14.1964 6.00016C14.102 5.83664 14.0007 5.67861 13.893 5.52631C13.0098 5.71107 12.0688 5.5756 11.2503 5.10304C10.4317 4.63046 9.84394 3.88326 9.56231 3.02591C9.18866 2.99035 8.81239 2.98984 8.43866 3.02469C8.15719 3.88253 7.56919 4.63023 6.75028 5.10304C5.93134 5.57585 4.98982 5.7112 4.1062 5.52602C3.88912 5.83231 3.70146 6.15838 3.54541 6.49978C4.14709 7.17233 4.50028 8.055 4.50028 9.00015C4.50028 9.9453 4.14711 10.8279 3.54541 11.5004C3.62349 11.6699 3.70972 11.8366 3.80413 12.0001C3.89853 12.1636 3.99979 12.3217 4.10758 12.474C4.99081 12.2893 5.93177 12.4247 6.75028 12.8973ZM9.00026 11.2501C7.75766 11.2501 6.75028 10.2428 6.75028 9.00015C6.75028 7.75755 7.75766 6.75016 9.00026 6.75016C10.2429 6.75016 11.2503 7.75755 11.2503 9.00015C11.2503 10.2428 10.2429 11.2501 9.00026 11.2501ZM9.00026 9.75015C9.41449 9.75015 9.75026 9.41437 9.75026 9.00015C9.75026 8.58592 9.41449 8.25015 9.00026 8.25015C8.58604 8.25015 8.25026 8.58592 8.25026 9.00015C8.25026 9.41437 8.58604 9.75015 9.00026 9.75015Z" fill="currentColor"/>
+                    </svg>
+                    <span>활성 에이전트 <span class="agent-status-count">9</span>개</span>
+                    <svg class="agent-status-dropdown" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.99949 9.87855L12.7118 6.16626L13.7725 7.22692L8.99949 11.9999L4.22656 7.22692L5.28722 6.16626L8.99949 9.87855Z" fill="currentColor"/>
+                    </svg>
+                </div>
+            </header>
+
+            <div class="chat-area">
+                <div class="chat-wrapper">
+                    <!-- User Message -->
+                    <div class="chat-bubble">
+                        <div class="chat-bubble-text">나라에서 지정한 휴가 규정을 간략하게 알려줘</div>
+                    </div>
+
+                    <!-- AI Response -->
+                    <div class="chat-response">
+                        <div class="response-intro">
+                            <div class="response-intro-header">
+                                <svg class="response-logo" viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.1192 0C17.3357 0 17.5484 0.0552074 17.7342 0.158007C17.9201 0.262711 18.0753 0.4112 18.1806 0.592052L27.8448 17.0153C27.9464 17.1885 28 17.3827 28 17.5826C28 17.7806 27.9464 17.9767 27.8448 18.1499L24.7524 23.406C24.6471 23.585 24.4938 23.7354 24.306 23.8401C24.1202 23.9448 23.9075 24 23.691 24H4.3071C4.0906 24 3.87793 23.9448 3.69208 23.8401C3.50623 23.7354 3.35103 23.585 3.24566 23.406L0.155194 18.1499C0.0536475 17.9767 0 17.7806 0 17.5826C0 17.3846 0.0536475 17.1885 0.155194 17.0153L9.81744 0.592052C9.92281 0.413104 10.078 0.262711 10.2639 0.158007C10.4497 0.0533037 10.6624 0 10.8789 0H17.1192ZM7.28261 18.1423C7.28261 18.1423 11.2103 15.519 13.9981 15.519C16.7858 15.519 20.7136 18.1423 20.7136 18.1423L13.9981 6.55255L7.28261 18.1423Z" fill="url(#paint0_linear)"/>
+                                    <defs>
+                                        <linearGradient id="paint0_linear" x1="14" y1="0" x2="14" y2="24" gradientUnits="userSpaceOnUse">
+                                            <stop stopColor="#003EC3"/>
+                                            <stop offset="1" stopColor="#0091FF"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <div class="response-intro-text">나라에서 지정한 휴가 규정은 주로 근로기준법과 관공서의 공휴일에 관한 규정에 따라 정해집니다.</div>
+                            </div>
+                            <div class="response-divider"></div>
+                        </div>
+
+                        <div class="response-content"><strong>1. 공휴일</strong>
+관공서의 공휴일에 관한 규정: 국경일, 신정, 설 연휴, 삼일절, 근로자의 날, 어린이날,  부처님오신날, 현충일, 광복절, 추석 연휴, 개천절, 한글날, 성탄절, 공직선거일, 대체공휴일 등이 포함됩니다. 
+대체공휴일 제도: 공휴일이 주말이나 다른 공휴일과 겹칠 경우, 비공휴일을  추가 휴일로 지정하여 휴무하게 하는 제도입니다.
+<strong>2. 연차유급휴가 (근로기준법)</strong>
+1년 80% 이상 출근 시: 15일의 유급휴가가 부여됩니다.
+1년 미만 근로 또는 80% 미만 출근 시: 1개월 개근 시 1일의 유급휴가가 부여됩니다.
+3년 이상 근속 시: 최초 1년을 초과하는 계속 근로 연수 매 2년에 대하여 1일을 가산하며,  총 휴가일수는 25일을 한도로 합니다.
+회사는 근로자가 청구한 시기에 휴가를 주어야 하지만, 사업 운영에 막대한 지장이 있는 경우  시기를 변경할 수 있습니다.</div>
+
+                        <div class="response-links">
+                            <div class="links-header">
+                                <div class="links-title">
+                                    <span class="links-emoji">💻</span>
+                                    <span>사이트 (3개)</span>
+                                </div>
+                                <button class="collapse-button">
+                                    <svg class="collapse-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8.99949 8.1213L5.28722 11.8337L4.22656 10.773L8.99949 6L13.7725 10.773L12.7118 11.8337L8.99949 8.1213Z" fill="currentColor"/>
+                                    </svg>
+                                    <span>접기</span>
+                                </button>
+                            </div>
+
+                            <div class="links-container">
+                                <div class="link-card">
+                                    <div class="link-badge">1</div>
+                                    <div class="link-content">
+                                        <div class="link-title">행정규칙 > 정부청사관리본부 방호직렬 공무원 운영 규정 | 국가법령 ...</div>
+                                        <div class="link-description">2022. 5. 27. ... 제4조(조직) ① 「보안업무규정」에 따른 국가보안시설로 지정된 ... ② 방호공무원의 휴가일수 산정은「국가공무원 복무규...</div>
+                                    </div>
+                                    <button class="link-button">
+                                        <svg class="link-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.5 2.25V3.75H3.75V14.25H14.25V10.5H15.75V15C15.75 15.4142 15.4142 15.75 15 15.75H3C2.58579 15.75 2.25 15.4142 2.25 15V3C2.25 2.58579 2.58579 2.25 3 2.25H7.5ZM13.1894 3.75H9.75V2.25H15.75V8.25H14.25V4.81066L9 10.0606L7.93935 9L13.1894 3.75Z" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="link-card">
+                                    <div class="link-badge">2</div>
+                                    <div class="link-content">
+                                        <div class="link-title">법령 > 본문 > 국가공무원 복무규정 | 국가법령정보센터</div>
+                                        <div class="link-description">... 지정하여 휴무하게 할 수 있다. 1. 「공직선거법」 제146조의2제1항에 따른 ... 이 경우 종전의 규정에 따라 사용한 휴가 일수는 제20조제...</div>
+                                    </div>
+                                    <button class="link-button">
+                                        <svg class="link-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.5 2.25V3.75H3.75V14.25H14.25V10.5H15.75V15C15.75 15.4142 15.4142 15.75 15 15.75H3C2.58579 15.75 2.25 15.4142 2.25 15V3C2.25 2.58579 2.58579 2.25 3 2.25H7.5ZM13.1894 3.75H9.75V2.25H15.75V8.25H14.25V4.81066L9 10.0606L7.93935 9L13.1894 3.75Z" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="link-card">
+                                    <div class="link-badge">3</div>
+                                    <div class="link-content">
+                                        <div class="link-title">행정규칙 > 현장 소방공무원 복무규칙 | 국가법령정보센터</div>
+                                        <div class="link-description">2022. 10. 21. ... ... 기준(별도 기준 수립시). 7. 부득이한 경우를 제외하고는 휴가자 등 발생에 따른 대체근무자 지정 자제. ② 소방기관의...</div>
+                                    </div>
+                                    <button class="link-button">
+                                        <svg class="link-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.5 2.25V3.75H3.75V14.25H14.25V10.5H15.75V15C15.75 15.4142 15.4142 15.75 15 15.75H3C2.58579 15.75 2.25 15.4142 2.25 15V3C2.25 2.58579 2.58579 2.25 3 2.25H7.5ZM13.1894 3.75H9.75V2.25H15.75V8.25H14.25V4.81066L9 10.0606L7.93935 9L13.1894 3.75Z" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="chat-input">
+                    <textarea placeholder="AgentGo에게 물어보세요." id="messageInput"></textarea>
+                    <div class="chat-input-controls">
+                        <button class="input-button">
+                            <svg class="input-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.1225 5.81805L6.87983 10.0607C6.58693 10.3535 6.58693 10.8284 6.87983 11.1213C7.17272 11.4143 7.6476 11.4143 7.94048 11.1213L12.1832 6.87871C13.0618 6.00003 13.0618 4.57541 12.1832 3.69673C11.3045 2.81805 9.87983 2.81805 9.00113 3.69673L4.7585 7.93937C3.29404 9.40382 3.29404 11.7782 4.7585 13.2427C6.22297 14.7071 8.59733 14.7071 10.0618 13.2427L14.3045 9.00002L15.3651 10.0607L11.1225 14.3033C9.07223 16.3535 5.7481 16.3535 3.69785 14.3033C1.64759 12.2531 1.64759 8.929 3.69785 6.87871L7.94048 2.63607C9.40493 1.1716 11.7794 1.1716 13.2438 2.63607C14.7083 4.10053 14.7083 6.4749 13.2438 7.93937L9.00113 12.182C8.1225 13.0607 6.69785 13.0607 5.81917 12.182C4.94048 11.3033 4.94048 9.87872 5.81917 9.00002L10.0618 4.75739L11.1225 5.81805Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                        <button class="input-button send" id="sendButton">
+                            <svg class="input-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9.74965 5.87132V15H8.24965V5.87132L4.22668 9.8943L3.16602 8.83365L8.99965 3L14.8333 8.83365L13.7727 9.8943L9.74965 5.87132Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-      // Sidebar toggle
-      const sidebar = document.getElementById("sidebar");
-      const menuButton = document.getElementById("menuButton");
-      const sidebarOverlay = document.querySelector(".sidebar-overlay");
-      const sidebarToggle = document.getElementById("sidebarToggle");
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const menuButton = document.getElementById('menuButton');
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        const sidebarToggle = document.getElementById('sidebarToggle');
 
-      function toggleSidebar() {
-        sidebar.classList.toggle("open");
-        sidebarOverlay.classList.toggle("show");
-      }
-
-      menuButton.addEventListener("click", toggleSidebar);
-      sidebarToggle.addEventListener("click", toggleSidebar);
-      sidebarOverlay.addEventListener("click", toggleSidebar);
-
-      // Chat input functionality
-      const messageInput = document.getElementById("messageInput");
-      const sendButton = document.getElementById("sendButton");
-
-      messageInput.addEventListener("input", function () {
-        sendButton.disabled = !messageInput.value.trim();
-      });
-
-      messageInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          if (messageInput.value.trim()) {
-            console.log("Message sent:", messageInput.value);
-            messageInput.value = "";
-            sendButton.disabled = true;
-          }
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('show');
         }
-      });
 
-      sendButton.addEventListener("click", function () {
-        if (messageInput.value.trim()) {
-          console.log("Message sent:", messageInput.value);
-          messageInput.value = "";
-          sendButton.disabled = true;
-        }
-      });
+        menuButton.addEventListener('click', toggleSidebar);
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
 
-      // Initialize button state
-      sendButton.disabled = true;
+        // Chat input functionality
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        messageInput.addEventListener('input', function() {
+            sendButton.disabled = !messageInput.value.trim();
+        });
+
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (messageInput.value.trim()) {
+                    console.log('Message sent:', messageInput.value);
+                    messageInput.value = '';
+                    sendButton.disabled = true;
+                }
+            }
+        });
+
+        sendButton.addEventListener('click', function() {
+            if (messageInput.value.trim()) {
+                console.log('Message sent:', messageInput.value);
+                messageInput.value = '';
+                sendButton.disabled = true;
+            }
+        });
+
+        // Initialize button state
+        sendButton.disabled = true;
     </script>
-  </body>
+</body>
 </html>
